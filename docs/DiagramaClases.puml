@@ -1,0 +1,220 @@
+@startuml DiagramaClasesHotel
+' Referencia digital del diagrama de clases (el entregable oficial es en papel).
+' Visibilidad: + público, - privado, # protegido, ~ de paquete.
+' Las decisiones D## están en DecisionesDiseno.md.
+
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+hide empty members
+
+package model {
+
+  class Hotel {
+    - {static} MIN_FLOORS : int = 8
+    - {static} MEDIUM_FLOOR_START : int = 4
+    - {static} HIGH_FLOOR_START : int = 7
+    - {static} LOW_FLOOR_PERCENT : int = 0
+    - {static} MEDIUM_FLOOR_PERCENT : int = 10
+    - {static} HIGH_FLOOR_PERCENT : int = 20
+    - {static} SINGLE_OCCUPANCY_DOUBLE_BED_FACTOR : int = 145
+    - {static} DOUBLE_OCCUPANCY_DOUBLE_BED_FACTOR : int = 190
+    - {static} ADDITIONAL_PERSON_FACTOR : int = 70
+    - id : int
+    - name : String
+    - address : String
+    - totalFloors : int
+    - baseRoomRate : long
+    - singleBedRate : long
+    - minibarRate : long
+    - premiumTvSurcharge : long
+    - seaViewSurchargePercent : int
+    - rooms : ArrayList<Room>
+    - guests : ArrayList<Guest>
+    - reservations : ArrayList<Reservation>
+    - nextGuestId : int
+    - nextReservationId : int
+    - nextConfirmationNumber : int
+    __
+    + Hotel(id : int, name : String, address : String, totalFloors : int, baseRoomRate : long, singleBedRate : long, minibarRate : long, premiumTvSurcharge : long, seaViewSurchargePercent : int)
+    .. registrar ..
+    + registerGuest(fullName : String, document : String, phone : String, email : String) : Guest
+    + registerSingleRoom(number : int, floor : int, seaView : boolean, premiumTv : boolean) : SingleRoom
+    + registerDoubleRoom(number : int, floor : int, seaView : boolean, premiumTv : boolean) : DoubleRoom
+    + registerFamilyRoom(number : int, floor : int, seaView : boolean, premiumTv : boolean, singleBeds : int) : FamilyRoom
+    + registerSuite(number : int, floor : int, seaView : boolean) : Suite
+    .. reservas ..
+    + reserve(guestId : int, roomNumber : int, guestCount : int, nights : int) : Reservation
+    + findAvailableRoom(guestCount : int, requiresSeaView : boolean, requiresPremiumTv : boolean) : Room
+    + confirmReservation(reservationId : int) : ReservationConfirmation
+    + cancelReservation(reservationId : int) : void
+    .. estado de habitaciones ..
+    + enableRoom(roomNumber : int) : void
+    + putRoomOutOfService(roomNumber : int) : void
+    + isAvailable(roomNumber : int) : boolean
+    - isAvailable(room : Room) : boolean
+    .. búsquedas ..
+    + findConfirmation(number : int) : ReservationConfirmation
+    - findGuest(id : int) : Guest
+    - findRoom(number : int) : Room
+    - findReservation(id : int) : Reservation
+    .. tarifas y datos ..
+    + floorSurchargePercent(floor : int) : int
+    + seaViewSurcharge() : long
+    + singleOccupancyDoubleBedRate() : long
+    + doubleOccupancyDoubleBedRate() : long
+    + additionalPersonRate() : long
+    - requireAtLeastOne(value : int, fieldName : String) : void
+    + getId() : int
+    + getName() : String
+    + getAddress() : String
+    + getTotalFloors() : int
+    + getBaseRoomRate() : long
+    + getSingleBedRate() : long
+    + getMinibarRate() : long
+    + getPremiumTvSurcharge() : long
+    + getSeaViewSurchargePercent() : int
+    + getRooms() : List<Room>
+  }
+
+
+  abstract class Room {
+    - number : int
+    - floor : int
+    - seaView : boolean
+    - premiumTv : boolean
+    - enabled : boolean
+    - hotel : Hotel
+    __
+    ~ Room(hotel : Hotel, number : int, floor : int, seaView : boolean, premiumTv : boolean)
+    + getNumber() : int
+    + getFloor() : int
+    + hasSeaView() : boolean
+    + hasPremiumTv() : boolean
+    + isEnabled() : boolean
+    # getHotel() : Hotel
+    ~ enable() : void
+    ~ putOutOfService() : void
+    + canHost(guests : int) : boolean
+    + adjustedBaseRate() : long
+    + nightCost(guests : int) : long
+    # minibarRate() : long
+    + {abstract} capacity() : int
+    # {abstract} bedRate(guests : int) : long
+  }
+
+  class SingleRoom {
+    ~ SingleRoom(hotel : Hotel, number : int, floor : int, seaView : boolean, premiumTv : boolean)
+    + capacity() : int
+    # bedRate(guests : int) : long
+  }
+
+  class DoubleRoom {
+    ~ DoubleRoom(hotel : Hotel, number : int, floor : int, seaView : boolean, premiumTv : boolean)
+    + capacity() : int
+    # bedRate(guests : int) : long
+  }
+
+  class FamilyRoom {
+    - singleBeds : int
+    __
+    ~ FamilyRoom(hotel : Hotel, number : int, floor : int, seaView : boolean, premiumTv : boolean, singleBeds : int)
+    + getSingleBeds() : int
+    + capacity() : int
+    # bedRate(guests : int) : long
+  }
+
+  class Suite {
+    ~ Suite(hotel : Hotel, number : int, floor : int, seaView : boolean)
+    + capacity() : int
+    # bedRate(guests : int) : long
+    # minibarRate() : long
+  }
+
+  class Guest {
+    - id : int
+    - fullName : String
+    - document : String
+    - phone : String
+    - email : String
+    __
+    ~ Guest(id : int, fullName : String, document : String, phone : String, email : String)
+    + getId() : int
+    + getFullName() : String
+    + getDocument() : String
+    + getPhone() : String
+    + getEmail() : String
+  }
+
+  class Reservation {
+    - id : int
+    - guest : Guest
+    - room : Room
+    - guestCount : int
+    - nights : int
+    - status : ReservationStatus
+    - confirmation : ReservationConfirmation
+    __
+    ~ Reservation(id : int, guest : Guest, room : Room, guestCount : int, nights : int)
+    + totalCost() : long
+    ~ confirm(confirmationNumber : int) : void
+    ~ cancel() : void
+    ~ isActive() : boolean
+    + getId() : int
+    + getGuest() : Guest
+    + getRoom() : Room
+    + getGuestCount() : int
+    + getNights() : int
+    + getStatus() : ReservationStatus
+    + getConfirmation() : ReservationConfirmation
+  }
+
+  class ReservationConfirmation {
+    - number : int
+    - reservationId : int
+    - guestName : String
+    - roomNumber : int
+    - nights : int
+    - totalCost : long
+    __
+    ~ ReservationConfirmation(number : int, reservationId : int, guestName : String, roomNumber : int, nights : int, totalCost : long)
+    + getNumber() : int
+    + getReservationId() : int
+    + getGuestName() : String
+    + getRoomNumber() : int
+    + getNights() : int
+    + getTotalCost() : long
+  }
+
+  enum ReservationStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+  }
+
+  ' Relaciones (aprobadas por el profesor)
+  Hotel "1" *-- "0..*" Room : rooms / hotel
+  Hotel "1" --> "0..*" Guest : guests
+  Hotel "1" --> "0..*" Reservation : reservations
+  Reservation "0..*" --> "1" Room : room
+  Reservation "0..*" --> "1" Guest : guest
+  Reservation "1" *--> "0..1" ReservationConfirmation : confirmation
+  Reservation --> "1" ReservationStatus : status
+
+  ' Herencia
+  Room <|-- SingleRoom
+  Room <|-- DoubleRoom
+  Room <|-- FamilyRoom
+  Room <|-- Suite
+}
+
+package view {
+  class Main {
+    + {static} main(args : String[]) : void
+  }
+}
+
+Main ..> Hotel : usa
+
+@enduml
