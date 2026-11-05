@@ -35,7 +35,7 @@ package model {
     - reservations : ArrayList<Reservation>
     - nextGuestId : int
     - nextReservationId : int
-    - nextConfirmationNumber : int
+    - nextReceiptNumber : int
     __
     + Hotel(id : int, name : String, address : String, totalFloors : int, baseRoomRate : long, singleBedRate : long, minibarRate : long, premiumTvSurcharge : long, seaViewSurchargePercent : int)
     .. registrar ..
@@ -47,7 +47,7 @@ package model {
     .. reservas ..
     + reserve(guestId : int, roomNumber : int, guestCount : int, nights : int) : Reservation
     + findAvailableRoom(guestCount : int, requiresSeaView : boolean, requiresPremiumTv : boolean) : Room
-    + confirmReservation(reservationId : int) : ReservationConfirmation
+    + confirmReservation(reservationId : int) : Receipt
     + cancelReservation(reservationId : int) : void
     .. estado de habitaciones ..
     + enableRoom(roomNumber : int) : void
@@ -55,7 +55,7 @@ package model {
     + isAvailable(roomNumber : int) : boolean
     - isAvailable(room : Room) : boolean
     .. búsquedas ..
-    + findConfirmation(number : int) : ReservationConfirmation
+    + findReceipt(number : int) : Receipt
     - findGuest(id : int) : Guest
     - findRoom(number : int) : Room
     - findReservation(id : int) : Reservation
@@ -154,11 +154,11 @@ package model {
     - guestCount : int
     - nights : int
     - status : ReservationStatus
-    - confirmation : ReservationConfirmation
+    - receipt : Receipt
     __
     ~ Reservation(id : int, guest : Guest, room : Room, guestCount : int, nights : int)
     + totalCost() : long
-    ~ confirm(confirmationNumber : int) : void
+    ~ confirm(receiptNumber : int) : void
     ~ cancel() : void
     ~ isActive() : boolean
     + getId() : int
@@ -167,10 +167,10 @@ package model {
     + getGuestCount() : int
     + getNights() : int
     + getStatus() : ReservationStatus
-    + getConfirmation() : ReservationConfirmation
+    + getReceipt() : Receipt
   }
 
-  class ReservationConfirmation {
+  class Receipt {
     - number : int
     - reservationId : int
     - guestName : String
@@ -178,7 +178,7 @@ package model {
     - nights : int
     - totalCost : long
     __
-    ~ ReservationConfirmation(number : int, reservationId : int, guestName : String, roomNumber : int, nights : int, totalCost : long)
+    ~ Receipt(number : int, reservationId : int, guestName : String, roomNumber : int, nights : int, totalCost : long)
     + getNumber() : int
     + getReservationId() : int
     + getGuestName() : String
@@ -199,7 +199,7 @@ package model {
   Hotel "1" --> "0..*" Reservation : reservations
   Reservation "0..*" --> "1" Room : room
   Reservation "0..*" --> "1" Guest : guest
-  Reservation "1" *--> "0..1" ReservationConfirmation : confirmation
+  Reservation "1" *--> "0..1" Receipt : receipt
   Reservation --> "1" ReservationStatus : status
 
   ' Herencia
