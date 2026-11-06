@@ -55,7 +55,7 @@ package model {
     + isAvailable(roomNumber : int) : boolean
     - isAvailable(room : Room) : boolean
     .. búsquedas ..
-    + findReceipt(number : int) : Receipt
+    + findReceipt(serialNumber : int) : Receipt
     - findGuest(id : int) : Guest
     - findRoom(number : int) : Room
     - findReservation(id : int) : Reservation
@@ -171,15 +171,15 @@ package model {
   }
 
   class Receipt {
-    - number : int
+    - serialNumber : int
     - reservationId : int
     - guestName : String
     - roomNumber : int
     - nights : int
     - totalCost : long
     __
-    ~ Receipt(number : int, reservationId : int, guestName : String, roomNumber : int, nights : int, totalCost : long)
-    + getNumber() : int
+    ~ Receipt(serialNumber : int, reservationId : int, guestName : String, roomNumber : int, nights : int, totalCost : long)
+    + getSerialNumber() : int
     + getReservationId() : int
     + getGuestName() : String
     + getRoomNumber() : int
