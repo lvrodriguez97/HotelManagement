@@ -145,4 +145,84 @@ public class Hotel {
     public long additionalPersonRate(){
         return (singleBedRate*ADDITIONAL_PERSON_FACTOR)/100;
     }
+
+    // --- Registration ---
+
+    public Guest registerGuest(String fullName, String document, String phone, String email){
+        for(Guest guest: guests){
+            if(guest.getDocument().equals(document)){
+                throw new IllegalArgumentException("Ya existe un huésped con el documento: " + document);
+            }
+        }
+        Guest newGuest = new Guest(nextGuestId + 1, fullName, document, phone, email);
+        guests.add(newGuest);
+        nextGuestId++;
+        return newGuest;
+    }
+
+    public SingleRoom registerSingleRoom(int number, int floor, boolean seaView, boolean premiumTv){
+        validateUniqueRoomNumber(number);
+        SingleRoom newRoom = new SingleRoom(this, number, floor, seaView, premiumTv);
+        rooms.add(newRoom);
+        return newRoom;
+    }
+
+    public DoubleRoom registerDoubleRoom(int number, int floor, boolean seaView, boolean premiumTv){
+        validateUniqueRoomNumber(number);
+        DoubleRoom newRoom = new DoubleRoom(this, number, floor, seaView, premiumTv);
+        rooms.add(newRoom);
+        return newRoom;
+    }
+
+    public FamilyRoom registerFamilyRoom(int number, int floor, boolean seaView, boolean premiumTv, int singleBeds){
+        validateUniqueRoomNumber(number);
+        FamilyRoom newRoom = new FamilyRoom(this, number, floor, seaView, premiumTv, singleBeds);
+        rooms.add(newRoom);
+        return newRoom;
+    }
+
+    public Suite registerSuite(int number, int floor, boolean seaView){
+        validateUniqueRoomNumber(number);
+        Suite newRoom = new Suite(this, number, floor, seaView);
+        rooms.add(newRoom);
+        return newRoom;
+    }
+
+    // Room numbers are unique in the hotel; a room cannot check this by itself.
+    private void validateUniqueRoomNumber(int number){
+        for(Room room: rooms){
+            if(room.getNumber() == number){
+                throw new IllegalArgumentException("Ya existe una habitación con el número: " + number);
+            }
+        }
+    }
+
+    // --- Private searches (throw if not found) ---
+
+    private Guest findGuest(int id){
+        for(Guest guest: guests){
+            if(guest.getId() == id){
+                return guest;
+            }
+        }
+        throw new IllegalArgumentException("No se encontró ningún huésped con el ID: " + id);
+    }
+
+    private Room findRoom(int number){
+        for(Room room: rooms){
+            if(room.getNumber() == number){
+                return room;
+            }
+        }
+        throw new IllegalArgumentException("No se encontró ninguna habitación con el número: " + number);
+    }
+
+    private Reservation findReservation(int id){
+        for(Reservation reservation: reservations){
+            if(reservation.getId() == id){
+                return reservation;
+            }
+        }
+        throw new IllegalArgumentException("No se encontró ninguna reserva con el ID: " + id);
+    }
 }
