@@ -98,6 +98,8 @@ package model {
     ~ putOutOfService() : void
     + canHost(guests : int) : boolean
     + adjustedBaseRate() : long
+    - viewSurcharges() : long
+    - premiumTvSurcharge() : long
     + nightCost(guests : int) : long
     # minibarRate() : long
     + {abstract} capacity() : int
