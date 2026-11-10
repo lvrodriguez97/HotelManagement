@@ -22,8 +22,7 @@ public class Hotel {
 
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final ArrayList<Guest> guests = new ArrayList<>();
-    // TODO: enable when Reservation exists.
-    // private final ArrayList<Reservation> reservations = new ArrayList<>();
+    private final ArrayList<Reservation> reservations = new ArrayList<>();
     private int nextGuestId = 0;
     private int nextReservationId = 0;
     private int nextReceiptNumber = 0; 
